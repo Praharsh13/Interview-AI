@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from 'react'
 import Link from 'next/link'
 
@@ -10,23 +10,26 @@ import {
   Form
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+
 import Image from 'next/image'
 import { toast } from 'sonner'
+
 import FormField from './FormInput'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '@/firebase/client'
+import { SignUp, signIn } from '@/lib/actions/auth'
+import { useRouter } from "next/navigation";
 const authFormSchema=(type:FormType) =>{
     return z.object({
-        name:type==="sign-in"? z.string().min(3):z.string().optional(),
+        name:type==="sign-up"? z.string().min(3):z.string().optional(),
         email:z.string().email(),
         password:z.string().min(4)
 
     })
 }
-// const formSchema = z.object({
-//     username: z.string().min(2, {
-//       message: "Username must be at least 2 characters.",
-//     }),
-//   })
+
 const AuthForm = ({type}:{type:FormType}) => {
+    const router=useRouter()
 
     const formSchema= authFormSchema(type)
 
@@ -40,10 +43,62 @@ const AuthForm = ({type}:{type:FormType}) => {
       })
      
       // 2. Define a submit handler.
-      function onSubmit(values: z.infer<typeof formSchema>) {
+      async function onSubmit(values: z.infer<typeof formSchema>) {
        try{
 
-        console.log(values)
+        if(type==="sign-up"){
+
+            const {name,email,password}=values
+            console.log(email, password)
+            
+
+            const userCredentials= await createUserWithEmailAndPassword(
+                auth,
+                email,password
+            )
+
+            const result=await SignUp({
+                uid:userCredentials.user.uid,
+                name:name!,
+                email,
+                password
+            })
+
+            if(!result?.success){
+                toast.error(result?.message)
+                return
+            }
+            toast.message("Account created successfully. Please sign in")
+            router.push("/sign-in")
+            
+        }
+        if(type==="sign-in"){
+            const {email,password}=values
+
+            console.log(email, password)
+
+            const userCredentials=await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            )
+
+            const tokenID=await userCredentials.user.getIdToken()
+            if(!tokenID){
+                toast.error("Login fail , Please try again")
+                return
+            }
+
+            await signIn({
+                email,
+                tokenID
+            })
+
+            toast.success("Signed in successfully.");
+            router.push("/");
+        }
+
+       
 
        }catch(error){
 
@@ -63,6 +118,7 @@ const AuthForm = ({type}:{type:FormType}) => {
             height={32} 
             width={38} />
             <h2 className="text-primary-100">PrepWise</h2>
+          
           
 
             </div>

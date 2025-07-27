@@ -4,9 +4,12 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { dummyInterviews } from '@/constants'
 import InterviewCard from '@/components/InterviewCard'
+import { getCurrentUser } from '@/lib/actions/auth'
 
 
-const page = () => {
+const page = async () => {
+
+    const user=await getCurrentUser()
   return (
    <>
    <section className='card-cta'>
