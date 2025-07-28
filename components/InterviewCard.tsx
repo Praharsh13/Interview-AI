@@ -1,7 +1,10 @@
-import { getRandomInterviewCover } from '@/lib/utils';
+import { cn,getRandomInterviewCover } from '@/lib/utils';
 import React from 'react'
 import Image from 'next/image';
 import DisplayTechIcons from './DisplayTechIcons';
+import dayjs from "dayjs";
+import Link from "next/link";
+import { Button } from './ui/button';
 
 const InterviewCard = ({interviewId,
 userId,
@@ -45,3 +48,4 @@ createdAt}:InterviewCardProps) => {
 }
 
 export default InterviewCard
+
