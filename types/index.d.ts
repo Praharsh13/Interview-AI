@@ -76,6 +76,14 @@ interface SignInParams {
   tokenID: string;
 }
 
+interface UpdateProfileParams{
+  
+  id: string;
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
 interface SignUpParams {
   uid: string;
   name: string;

@@ -1,6 +1,8 @@
 'use server';
 import { db,auth } from "@/firebase/admin"
+import { Session } from "inspector/promises";
 import { cookies } from "next/headers";
+import { _success } from "zod/v4/core";
 
 
 
@@ -93,6 +95,46 @@ export async function signIn(params:SignInParams){
     }
 }
 
+export async function updateProfile(params:UpdateProfileParams){
+    const {id,name,email,password}=params
+
+    console.log(name)
+    try {
+        const userRecord=await auth.getUser(id)
+        if(!userRecord){
+            return{
+                success:false,
+                message:"Failed to Update. Try again"
+            }
+        }
+
+        const updateUser=await auth.updateUser(id,{
+            displayName:name,
+            email,
+            password
+            
+
+        })
+        console.log(updateUser)
+
+        return {
+            successs:true,
+            message:"Successfully Updated"
+        }
+        
+    } catch (error) {
+
+        console.log(error)
+
+        return{
+            success:false,
+            message:"Error in updating"
+        }
+        
+    }
+
+}
+
 export async function getCurrentUser(){
     const cookieStore=await cookies()
     const sessionCookie=cookieStore.get("session")?.value
@@ -129,3 +171,9 @@ export async function isAuthenticated(){
      return !!user
 }
     
+export async function signOut(){
+    const cookieStore=await cookies();
+
+    cookieStore.delete("session")
+    
+}
