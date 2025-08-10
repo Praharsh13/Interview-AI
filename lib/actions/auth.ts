@@ -95,45 +95,45 @@ export async function signIn(params:SignInParams){
     }
 }
 
-export async function updateProfile(params:UpdateProfileParams){
-    const {id,name,email,password}=params
+// export async function updateProfile(params:UpdateProfileParams){
+//     const {id,name,email,password}=params
 
-    console.log(name)
-    try {
-        const userRecord=await auth.getUser(id)
-        if(!userRecord){
-            return{
-                success:false,
-                message:"Failed to Update. Try again"
-            }
-        }
+//     console.log(name)
+//     try {
+//         const userRecord=await auth.getUser(id)
+//         if(!userRecord){
+//             return{
+//                 success:false,
+//                 message:"Failed to Update. Try again"
+//             }
+//         }
 
-        const updateUser=await auth.updateUser(id,{
-            displayName:name,
-            email,
-            password
+//         const updateUser=await auth.updateUser(id,{
+//             displayName:name,
+//             email,
+//             password
             
 
-        })
-        console.log(updateUser)
+//         })
+//         console.log(updateUser)
 
-        return {
-            successs:true,
-            message:"Successfully Updated"
-        }
+//         return {
+//             successs:true,
+//             message:"Successfully Updated"
+//         }
         
-    } catch (error) {
+//     } catch (error) {
 
-        console.log(error)
+//         console.log(error)
 
-        return{
-            success:false,
-            message:"Error in updating"
-        }
+//         return{
+//             success:false,
+//             message:"Error in updating"
+//         }
         
-    }
+//     }
 
-}
+// }
 
 export async function getCurrentUser(){
     const cookieStore=await cookies()

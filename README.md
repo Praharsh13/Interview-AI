@@ -1,36 +1,152 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InterviewAI – AI-Powered Interview Practice Platform
 
-## Getting Started
+> An intelligent AI-driven interview preparation platform built with **Next.js**, **Firebase**, and **Vapi**, allowing users to practice mock interviews with instant feedback and real-time conversation.
 
-First, run the development server:
+---
 
+## 📌 Overview
+**InterviewAI** is a web-based AI interview assistant that:
+
+- Guides users to create **custom AI interviewers** for specific job roles.
+- Conducts **interactive AI interviews** in real time.
+- Generates **personalized feedback** with scores and suggestions.
+- Stores interview data for later review.
+
+The project integrates **[Vapi](https://vapi.ai)** to handle **AI-driven conversation flows** and **API calls** for interview creation and execution.
+
+---
+
+## 🛠️ Tech Stack
+- **Frontend:** Next.js (React + Tailwind CSS)
+- **Backend:** Firebase Authentication + Firestore
+- **AI Integration:** Vapi
+- **Styling:** Tailwind CSS, custom components
+- **Form Handling:** React Hook Form + Zod
+- **Deployment:** Vercel
+
+---
+
+## 📂 Features
+- **User Authentication** (Email/Password + OAuth)
+- **AI Interviewer Setup**
+  - Role
+  - Type (technical, behavioral, mixed)
+  - Difficulty level
+  - Tech stack
+  - Number of questions
+- **Real-time Conversation**
+  - AI interviewer asks questions
+  - User responds via microphone
+- **Feedback Generation**
+  - Score out of 100
+  - Detailed feedback on answers
+- **Dashboard & History**
+  - View past interviews
+  - Revisit feedback anytime
+
+---
+
+## 🚀 How It Works
+The core interview flow is powered by **Vapi's conversation nodes**.
+
+### 1️⃣ Start Node
+The **Conversation Node** greets the user and collects the required variables:
+- `role`
+- `type`
+- `level`
+- `amount`
+- `techstack`
+
+### 2️⃣ Conditional Check
+If all variables are provided, proceed to the interview generation step.
+
+### 3️⃣ Confirmation Conversation
+AI confirms:
+
+### 4️⃣ API Request
+Calls backend API with the provided variables to:
+- Generate interview questions
+- Store them in the database
+
+### 5️⃣ End Call
+AI ends the conversation:
+
+User is redirected to the dashboard.
+
+---
+![Alt text](public/ai-interview-hero.png)
+
+## 📊 Vapi Flow Screenshot
+Below is the visual conversation flow in **Vapi**:
+
+![Alt text](<Screenshot 2025-08-10 at 22.47.56.png>)
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone the Repository
 ```bash
+git clone https://github.com/yourusername/interviewai.git
+cd interviewai
+
+2. Install Dependencies
+bash
+Copy
+Edit
+npm install
+3. Environment Variables
+Create a .env.local file:
+
+env
+Copy
+Edit
+NEXT_PUBLIC_VAPI_API_KEY=your_vapi_key
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+4. Run the Development Server
+bash
+Copy
+Edit
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Visit: http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🧪 Usage
+Sign In or Sign Up.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Start an AI Interview:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Choose job role, type, level, and tech stack.
 
-## Learn More
+Answer Questions in Real-Time.
 
-To learn more about Next.js, take a look at the following resources:
+Receive Feedback instantly.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+View History in dashboard.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+💡 Practical Vapi Usage in Code
+Example integration with Vapi SDK:
 
-## Deploy on Vercel
+javascript
+Copy
+Edit
+import { vapi } from '@/lib/vapi';
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+await vapi.start(
+  process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID,
+  {
+    variableValues: {
+      role: 'Frontend Developer',
+      type: 'Technical',
+      level: 'Mid',
+      amount: 5,
+      techstack: 'React, TypeScript'
+    }
+  }
+);
+📄 License
+MIT License © 2025 [Praharsh Pranjal]

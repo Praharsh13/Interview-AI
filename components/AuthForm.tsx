@@ -1,169 +1,155 @@
 "use client";
-import React from 'react'
-import Link from 'next/link'
+import React from "react";
+import Link from "next/link";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form" 
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
-import {
-  Form
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import Image from "next/image";
+import { toast } from "sonner";
 
-import Image from 'next/image'
-import { toast } from 'sonner'
-
-import FormField from './FormInput'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/firebase/client'
-import { SignUp, signIn } from '@/lib/actions/auth'
+import FormField from "./FormInput";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase/client";
+import { SignUp, signIn } from "@/lib/actions/auth";
 import { useRouter } from "next/navigation";
-const authFormSchema=(type:FormType) =>{
-    return z.object({
-        name:type==="sign-up"? z.string().min(3):z.string().optional(),
-        email:z.string().email(),
-        password:z.string().min(4)
 
-    })
-}
+const authFormSchema = (type: FormType) => {
+  return z.object({
+    name: type === "sign-up" ? z.string().min(3) : z.string().optional(),
+    email: z.string().email(),
+    password: z.string().min(4),
+  });
+};
 
-const AuthForm = ({type}:{type:FormType}) => {
-    const router=useRouter()
+const AuthForm = ({ type }: { type: FormType }) => {
+  const router = useRouter();
+  const formSchema = authFormSchema(type);
 
-    const formSchema= authFormSchema(type)
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { name: "", email: "", password: "" },
+  });
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-          name: "",
-          email:"",
-          password:""
-        },
-      })
-     
-      // 2. Define a submit handler.
-      async function onSubmit(values: z.infer<typeof formSchema>) {
-       try{
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      if (type === "sign-up") {
+        const { name, email, password } = values;
+        const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
 
-        if(type==="sign-up"){
+        const result = await SignUp({
+          uid: userCredentials.user.uid,
+          name: name!,
+          email,
+          password,
+        });
 
-            const {name,email,password}=values
-            console.log(email, password)
-            
-
-            const userCredentials= await createUserWithEmailAndPassword(
-                auth,
-                email,password
-            )
-
-            const result=await SignUp({
-                uid:userCredentials.user.uid,
-                name:name!,
-                email,
-                password
-            })
-
-            if(!result?.success){
-                toast.error(result?.message)
-                return
-            }
-            toast.message("Account created successfully. Please sign in")
-            router.push("/sign-in")
-            
+        if (!result?.success) {
+          toast.error(result?.message);
+          return;
         }
-        if(type==="sign-in"){
-            const {email,password}=values
-
-            console.log(email, password)
-
-            const userCredentials=await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
-            )
-
-            const tokenID=await userCredentials.user.getIdToken()
-            if(!tokenID){
-                toast.error("Login fail , Please try again")
-                return
-            }
-
-            await signIn({
-                email,
-                tokenID
-            })
-
-            toast.success("Signed in successfully.");
-            router.push("/");
-        }
-
-       
-
-       }catch(error){
-
-        console.log(error)
-        toast.error(`There was some errors ${error}`)
-
-       }
+        toast.message("Account created successfully. Please sign in");
+        router.push("/sign-in");
       }
 
-      const isSignIn= type==="sign-in"?true :false
+      if (type === "sign-in") {
+        const { email, password } = values;
+        const userCredentials = await signInWithEmailAndPassword(auth, email, password);
+        const tokenID = await userCredentials.user.getIdToken();
+        if (!tokenID) {
+          toast.error("Login fail , Please try again");
+          return;
+        }
+        await signIn({ email, tokenID });
+        toast.success("Signed in successfully.");
+        router.push("/");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(`There was some errors ${error}`);
+    }
+  }
+
+  const isSignIn = type === "sign-in";
+
   return (
-    <div className='card-border lg:min-w-[566px]'>
-        <div className='flex flex-col gap-6 card py-14 px-10'>
-            <div className='flex flex-row gap-2 justify-center'>
-            <Image src="/logo.svg" 
-            alt="logo" 
-            height={32} 
-            width={38} />
-            <h2 className="text-primary-100">PrepWise</h2>
-          
-          
+    <div className="relative">
+      {/* subtle page glow */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/2 top-[-14%] h-64 w-[38rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-sky-400/10 via-emerald-400/10 to-indigo-400/10 blur-3xl" />
+      </div>
 
-            </div>
-            <h3>Practice job interviews with AI</h3>
-        
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full mt-4 form">
+      <div className="rounded-3xl border border-black/5 bg-white/70 p-0 shadow-xl backdrop-blur dark:border-white/10 dark:bg-white/5 lg:min-w-[566px]">
+        {/* header */}
+        <div className="flex flex-col gap-6 px-8 py-12">
+          <div className="flex items-center justify-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl border border-black/5 bg-white shadow-sm dark:border-white/10 dark:bg-white/10">
+              <Image src="/logo.svg" alt="logo" height={22} width={22} priority />
+            </span>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">InterviewAI</h2>
+          </div>
 
-        {!isSignIn  && (
-            <FormField 
-               control={form.control}
-               name="name"
-               label="Name"
-               placeholder='Your Name'
-               />
-        )}
+          <h3 className="text-center text-xl font-semibold text-gray-900 dark:text-white">
+            {isSignIn ? "Welcome back" : "Create your account"}
+          </h3>
+          <p className="text-center text-sm text-gray-600 dark:text-gray-300">
+            Practice job interviews with AI — instant feedback, role-based questions.
+          </p>
 
-    <FormField 
-               control={form.control}
-               name="email"
-               label="Email"
-               placeholder='Your Email example@hmail.com'
-               type="email"
-               />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="form mt-2 w-full space-y-5">
+              {!isSignIn && (
+                <FormField
+                  control={form.control}
+                  name="name"
+                  label="Full Name"
+                  placeholder="Your name"
+                />
+              )}
 
-     <FormField 
-               control={form.control}
-               name="password"
-               label="Password"
-               placeholder='Your Password'
-               type="password"
-               />       
-       
-        <Button className="btn" type="submit">{isSignIn ? 'Sign In' : 'Create a Account'}</Button>
-      </form>
-    </Form>
+              <FormField
+                control={form.control}
+                name="email"
+                label="Email"
+                placeholder="you@example.com"
+                type="email"
+              />
 
-    <p className='text-center'>
-        {isSignIn? "No account yet ?" : "Have a account already ?"}
+              <FormField
+                control={form.control}
+                name="password"
+                label="Password"
+                placeholder="••••••••"
+                type="password"
+              />
 
-        <Link href={!isSignIn ? '/sign-in' : '/sign-up'} className="font-bold text-user-primary ml-1">{!isSignIn? 'Sign In':"Sign-up" }</Link>
-    </p>
+              {/* divider */}
+              <div className="h-px w-full bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/10" />
+
+              <Button
+                className="btn inline-flex w-full items-center justify-center rounded-2xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-gray-800 dark:bg-white dark:text-black hover:brightness-105"
+                type="submit"
+              >
+                {isSignIn ? "Sign In" : "Create Account"}
+              </Button>
+            </form>
+          </Form>
+
+          <p className="text-center text-sm text-gray-600 dark:text-gray-300">
+            {isSignIn ? "No account yet?" : "Already have an account?"}
+            <Link
+              href={!isSignIn ? "/sign-in" : "/sign-up"}
+              className="ml-2 font-semibold text-sky-600 underline-offset-4 hover:underline dark:text-sky-400"
+            >
+              {!isSignIn ? "Sign In" : "Sign Up"}
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
-    </div>
-  )
-}
+  );
+};
 
-export default AuthForm
+export default AuthForm;
